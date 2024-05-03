@@ -593,8 +593,10 @@ export class AssetRepository implements IAssetRepository {
     return (
       this.getBuilder(options)
         .andWhere(`${truncated} = :timeBucket`, { timeBucket: timeBucket.replace(/^[+-]/, '') })
-        // First sort by the day in localtime (put it in the right bucket)
-        .orderBy(truncated, 'DESC')
+        // First sort by name (for duplicate timestamps)
+        .orderBy('asset.originalFileName', 'DESC')
+        // then sort by the day in localtime (put it in the right bucket)
+        .addOrderBy(truncated, 'DESC')
         // and then sort by the actual time
         .addOrderBy('asset.fileCreatedAt', options.order === AssetOrder.ASC ? 'ASC' : 'DESC')
         .getMany()
